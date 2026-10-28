@@ -206,7 +206,6 @@ details.hints[open]{display:grid;gap:10px}
     <div class="pager">
       <div class="confirm">
         <button class="btn primary" id="pdfBtn" type="button">PDF로 저장하기</button>
-        <button class="btn" id="shareBtn" type="button" hidden>PDF 보내기 (카톡·드라이브 등)</button>
         <button class="btn" id="copyBtn" type="button">내용 복사하기</button>
         <span class="saved" id="copyMsg" role="status"></span>
       </div>
@@ -435,7 +434,7 @@ details.hints[open]{display:grid;gap:10px}
     }
     return pdf.output('blob');
   }
-  // the PDF is kept for the current answers so 'send' can open the share sheet right inside the tap
+  // the PDF is kept for the current answers so a second tap does not redraw it
   var cached = { key: null, blob: null };
   async function currentPdf(){
     var key = JSON.stringify(data);
@@ -456,34 +455,11 @@ details.hints[open]{display:grid;gap:10px}
       var url = URL.createObjectURL(blob), a = document.createElement('a');
       a.href = url; a.download = pdfName(); document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
-      msg.textContent = shareOk ? '다운로드 폴더(또는 파일 앱)를 확인하세요. 안 보이면 «PDF 보내기»를 눌러 주세요.' : '다운로드 폴더를 확인하세요.';
+      msg.textContent = '다운로드 폴더(아이폰·아이패드는 파일 앱)를 확인하세요.';
     } catch (e) {
       msg.textContent = 'PDF를 만들지 못했어요. 새로고침한 뒤 다시 눌러 주세요.';
     } finally { btn.disabled = false; }
   });
-  // phones and tablets: hand the file to the share sheet (KakaoTalk, Google Drive, Files ...)
-  var shareOk = false;
-  try { shareOk = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'a.pdf', { type: 'application/pdf' })] })); } catch (e) {}
-  var shareBtn = document.getElementById('shareBtn');
-  shareBtn.hidden = !shareOk;
-  shareBtn.addEventListener('click', async function(){
-    var msg = document.getElementById('copyMsg');
-    if (!ready(msg)) return;
-    var fresh = cached.key === JSON.stringify(data);
-    try {
-      if (!fresh) { shareBtn.disabled = true; msg.textContent = 'PDF를 만드는 중이에요…'; }
-      var file = new File([await currentPdf()], pdfName(), { type: 'application/pdf' });
-      shareBtn.disabled = false;
-      await navigator.share({ files: [file], title: pdfName() });
-      msg.textContent = '보냈어요.';
-    } catch (e) {
-      shareBtn.disabled = false;
-      if (e && e.name === 'AbortError') msg.textContent = '보내기를 취소했어요.';
-      else if (e && e.name === 'NotAllowedError') msg.textContent = 'PDF가 준비됐어요. «PDF 보내기»를 한 번 더 눌러 주세요.';
-      else msg.textContent = '보내지 못했어요. «PDF로 저장하기»를 눌러 주세요.';
-    }
-  });
-
   // KakaoTalk's in-app browser cannot save files: offer to reopen the page in the phone's own browser
   if (/KAKAOTALK/i.test(navigator.userAgent)) {
     var kb = document.getElementById('kakaoBox');
