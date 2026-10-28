@@ -119,6 +119,7 @@ details.hints[open]{display:grid;gap:10px}
     <h1>문제 해결을 위한 인공효소 설계 워크북</h1>
     <p class="lead">STEP 1부터 4까지 칸을 채우면 <b>내 보고서 보기</b>에 탐구활동지 양식 그대로 보고서가 완성되고, PDF 파일로 저장할 수 있어요. 입력한 내용은 지금 쓰는 기기의 브라우저에 자동 저장됩니다.</p>
     <div class="tip" id="kakaoBox" hidden>카카오톡 안에서 열면 PDF가 저장되지 않아요. <button class="btn primary" id="kakaoBtn" type="button">다른 브라우저로 열기</button></div>
+    <div class="tip" id="importBox" hidden></div>
     <div class="ids">
       <label for="id_num">학번 <input type="text" id="id_num" data-k="id_num"></label>
       <label for="id_name">이름 <input type="text" id="id_name" data-k="id_name"></label>
@@ -250,6 +251,24 @@ details.hints[open]{display:grid;gap:10px}
   try { data = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { data = {}; }
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function v(k){ var x = data[k]; return (typeof x === 'string') ? x.trim() : (x == null ? '' : String(x)); }
+
+  // answers carried over from the old claude.ai page: #import=<base64url JSON>
+  var kakao = /KAKAOTALK/i.test(navigator.userAgent);
+  function decodeImport(text){
+    var m = String(text || '').match(/import=([A-Za-z0-9_-]+)/);
+    if (!m) return null;
+    try {
+      var obj = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))));
+      if (!obj || typeof obj !== 'object') return null;
+      var out = {};
+      Object.keys(obj).forEach(function(k){ if (typeof obj[k] === 'string') out[k] = obj[k]; });
+      return out;
+    } catch (e) { return null; }
+  }
+  function hasData(o){ return Object.keys(o).some(function(k){ return String(o[k] || '').trim() !== ''; }); }
+  var incoming = decodeImport(location.hash);
+  // KakaoTalk keeps the link so «다른 브라우저로 열기» carries the answers along
+  if (incoming && !kakao) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
 
   // ---- bind inputs ----
   var fields = document.querySelectorAll('[data-k]');
@@ -488,6 +507,26 @@ details.hints[open]{display:grid;gap:10px}
     });
   }
   resetIdle();
+  // ---- import ----
+  var importBox = document.getElementById('importBox');
+  function applyImport(obj){
+    data = obj; save();
+    fields.forEach(function(el){ el.value = data[el.dataset.k] || ''; });
+    importBox.innerHTML = '<b>이전 주소에서 쓴 내용을 가져왔어요.</b> 내 보고서 보기에서 PDF로 저장하세요.';
+    go(steps.length - 1);
+  }
+  if (incoming && hasData(incoming)) {
+    importBox.hidden = false;
+    if (!hasData(data) || JSON.stringify(data) === JSON.stringify(incoming)) {
+      setTimeout(function(){ applyImport(incoming); }, 0);
+    } else {
+      importBox.innerHTML = '<p>이 기기에는 새 주소에서 쓴 내용이 이미 있어요. 이전 주소에서 가져온 내용으로 바꿀까요?</p>' +
+        '<p class="confirm" style="margin-top:8px"><button class="btn primary" type="button" id="importYes">가져온 내용으로 바꾸기</button><button class="btn" type="button" id="importNo">지금 내용 유지</button></p>';
+      document.getElementById('importYes').addEventListener('click', function(){ applyImport(incoming); });
+      document.getElementById('importNo').addEventListener('click', function(){ importBox.hidden = true; });
+    }
+  }
+
   go(cur);
 })();
 </script>
