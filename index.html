@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>인공효소 설계 워크북</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<style>
+/* Layout: one column notebook; sticky step rail; each STEP fills rows of the design report, the last tab shows the report form and saves it as PDF */
+:root{
+  --paper:#fbf8f4; --sheet:#ffffff; --ink:#1d2a26; --muted:#5d6b66; --line:#d8e2dd;
+  --mint:#dcefe5; --mint-strong:#2f7d5f; --accent:#2340c9; --warn:#b4492d;
+  --display:"Do Hyeon","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#141b19; --sheet:#1b2422; --ink:#e6eeea; --muted:#9db0a8; --line:#2f3d39;
+  --mint:#1f3a31; --mint-strong:#7fd0ac; --accent:#9fb0ff; --warn:#f0937a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#141b19; --sheet:#1b2422; --ink:#e6eeea; --muted:#9db0a8; --line:#2f3d39;
+  --mint:#1f3a31; --mint-strong:#7fd0ac; --accent:#9fb0ff; --warn:#f0937a; color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;word-break:keep-all}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:2rem;color:var(--accent);line-height:1.2}
+h2{font-size:1.6rem;line-height:1.25}
+h3{font-size:1.15rem;margin-top:4px}
+p{margin:0}
+.lead{color:var(--muted)}
+header.top{display:grid;gap:14px;margin-bottom:18px}
+.ids{display:flex;flex-wrap:wrap;gap:10px}
+.ids label{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted);white-space:nowrap}
+.ids input[type=text]{width:150px;padding-block:6px}
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding-block:10px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.rail-inner{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.rail button{flex:0 0 auto;font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.rail button .dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.rail button.done .dot{background:var(--mint-strong)}
+.rail button[aria-current="page"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.rail button.summary{border-color:var(--accent);color:var(--accent)}
+.rail button.summary[aria-current="page"]{background:var(--accent);color:var(--paper)}
+section.step{display:grid;gap:18px}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px;min-width:0}
+.tip{background:var(--mint);border-radius:8px;padding:12px 14px;font-size:.92rem}
+.tip b{color:var(--mint-strong)}
+.goes{font-size:.82rem;color:var(--accent);font-weight:600}
+.q{display:grid;gap:6px}
+.q > span{font-weight:600;font-size:.95rem}
+.q small{color:var(--muted);font-weight:400}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;box-sizing:border-box;line-height:1.7}
+/* boxes start at about three lines and grow with what the student writes (see fit()) */
+textarea{display:block;min-height:calc(3 * 1.7em + 22px);resize:none;overflow:hidden}
+input[type=text]:hover,textarea:hover{border-color:var(--muted)}
+::placeholder{color:var(--muted);opacity:.85}
+/* guide text drawn inside the box (so it can carry ①② and underlines); hides once the student types */
+.field{position:relative}
+.field .ph{position:absolute;top:11px;left:13px;right:13px;color:var(--muted);pointer-events:none;line-height:1.7}
+.field .ph > span{margin-right:.9em}
+.field .ph u{text-underline-offset:3px}
+.field textarea:not(:placeholder-shown) + .ph{display:none}
+input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.part{display:grid;gap:12px;padding-top:14px;border-top:1px dashed var(--line)}
+.part:first-of-type{padding-top:0;border-top:0}
+.part > h3{display:flex;align-items:center;gap:8px}
+.part > h3 .n{font-family:var(--body);font-size:.8rem;font-weight:600;background:var(--mint);color:var(--mint-strong);border-radius:999px;padding:1px 9px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+th{background:var(--mint);font-weight:600}
+.pager{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:var(--sheet);color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--warn);border-color:var(--warn);background:transparent}
+.btn[disabled]{opacity:.55;cursor:progress}
+.saved{font-size:.82rem;color:var(--muted)}
+details.hints{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+details.hints summary{cursor:pointer;font-weight:600}
+details.hints[open]{display:grid;gap:10px}
+/* report: same form as the 탐구활동지 */
+.report{display:grid;gap:14px}
+.rhead{display:grid;grid-template-columns:1fr 190px;border:1px solid var(--ink);background:var(--sheet)}
+.rtitle{padding:10px 16px 14px;border-right:1px solid var(--ink);display:grid;gap:2px}
+.rtitle .tag{font-weight:600;font-size:.88rem}
+.rtitle h2{color:var(--accent);text-align:center;font-size:1.55rem}
+.who{display:grid}
+.who div{padding:8px 12px;font-size:.92rem;font-weight:600;display:flex;align-items:center}
+.who div + div{border-top:1px solid var(--ink)}
+.rbody{border:1px solid var(--ink);background:var(--sheet)}
+.row{display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid var(--ink)}
+.rbody > .row:last-child{border-bottom:0}
+.k{background:var(--mint);padding:12px;font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center;border-right:1px solid var(--ink);font-size:.92rem}
+.v{padding:12px 16px;min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.act{display:grid;grid-template-columns:56px 1fr;border-bottom:1px solid var(--ink)}
+.act .sub .row{grid-template-columns:94px 1fr}
+.act .sub .row:last-child{border-bottom:0}
+.v ol{margin:0;padding-left:1.4em;white-space:normal;display:grid;gap:6px}
+.v ol li{white-space:pre-wrap}
+.v ol b{font-weight:600}
+.empty{color:var(--warn);font-size:.9rem;white-space:normal}
+.empty button{font:inherit;color:inherit;background:none;border:0;text-decoration:underline;cursor:pointer;padding:0}
+@media (max-width:620px){
+  .wrap .rhead{grid-template-columns:1fr}.wrap .rtitle{border-right:0;border-bottom:1px solid var(--ink)}
+  .wrap .row,.wrap .act .sub .row{grid-template-columns:1fr}.wrap .k{border-right:0;border-bottom:1px solid var(--ink);justify-content:flex-start}
+  .wrap .act{grid-template-columns:1fr}
+}
+/* offscreen A4 copy used only to draw the PDF; always light like a printed sheet */
+#pdfStage{position:fixed;left:-12000px;top:0;pointer-events:none}
+.paper{--sheet:#ffffff;--ink:#111111;--mint:#ffffff;--accent:#1f3fd1;--warn:#111111;
+  width:720px;background:#ffffff;color:#111111;font-family:var(--body);font-size:13.5px;line-height:1.6;padding:2px}
+.confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media (prefers-reduced-motion:no-preference){section.step{animation:fade .18s ease-out}@keyframes fade{from{opacity:.4}to{opacity:1}}}
+</style>
+</head><body>
+
+
+<div class="wrap">
+  <header class="top">
+    <h1>문제 해결을 위한 인공효소 설계 워크북</h1>
+    <p class="lead">STEP 1부터 4까지 칸을 채우면 <b>내 보고서 보기</b>에 탐구활동지 양식 그대로 보고서가 완성되고, PDF 파일로 저장할 수 있어요. 입력한 내용은 지금 쓰는 기기의 브라우저에 자동 저장됩니다.</p>
+    <div class="tip" id="kakaoBox" hidden>카카오톡 안에서 열면 PDF가 저장되지 않아요. <button class="btn primary" id="kakaoBtn" type="button">다른 브라우저로 열기</button></div>
+    <div class="ids">
+      <label for="id_num">학번 <input type="text" id="id_num" data-k="id_num"></label>
+      <label for="id_name">이름 <input type="text" id="id_name" data-k="id_name"></label>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="워크북 단계"><div class="rail-inner" id="rail"></div></nav>
+
+  <main>
+
+  <!-- STEP 1 -->
+  <section class="step" data-step="0" data-title="STEP 1 인공효소의 명칭">
+    <div><h2>STEP 1. 인공효소의 명칭</h2><p class="lead">효소 이름은 보통 기질이나 반응 이름 뒤에 ‘-ase’를 붙여요. 예를 들어 녹말(amylose)을 분해하면 아밀레이스(amylase), PET를 분해하면 PETase입니다. 내 효소의 특징을 담아 이름을 짓고, 그 뜻을 함께 적어 보세요.</p></div>
+    <div class="sheet">
+      <label class="q" for="n_full"><span>이름과 의미는?</span><textarea id="n_full" data-k="n_full"></textarea></label>
+      <p class="goes">→ 보고서의 ‘인공효소 명칭’ 칸</p>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" data-step="1" data-title="STEP 2 목적(해결 과제)" hidden>
+    <div><h2>STEP 2. 목적(해결 과제)</h2><p class="lead">‘해결 과제 탐색’ 활동지를 옆에 펴 놓고, 내 효소가 어떤 문제를 풀기 위해 필요한지 정리해 보세요.</p></div>
+    <div class="sheet">
+      <label class="q" for="p_goal"><span>인공효소 설계의 목적(해결 과제)</span><span class="field"><textarea id="p_goal" data-k="p_goal" class="tall" placeholder=" "></textarea><span class="ph" aria-hidden="true"><span>① <u>문제의 원인과 피해</u>, 문제 해결을 위해 ② <u>어떤 기능의 효소</u>가 필요한가?</span></span></span></label>
+      <p class="goes">→ 보고서의 ‘인공효소 설계의 목적(해결 과제)’ 칸</p>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" data-step="2" data-title="STEP 3 효소 작용" hidden>
+    <div><h2>STEP 3. 효소 작용</h2><p class="lead">효소가 무엇에 작용해 무엇을 만드는지, 어떤 조건에서 어떤 원리로 일하는지 정해 봅니다.</p></div>
+    <div class="sheet">
+      <div class="part">
+        <h3><span class="n">1</span>기질</h3>
+        <label class="q" for="s_text"><span class="sr" hidden>기질</span><span class="field"><textarea id="s_text" data-k="s_text" placeholder=" "></textarea><span class="ph" aria-hidden="true"><span>① 기질의 이름</span><span>② 단위체의 이름과 화학결합의 종류</span></span></span></label>
+      </div>
+      <div class="part">
+        <h3><span class="n">2</span>생성물</h3>
+        <label class="q" for="r_text"><span class="sr" hidden>생성물</span><span class="field"><textarea id="r_text" data-k="r_text" placeholder=" "></textarea><span class="ph" aria-hidden="true"><span>① 생성물의 이름</span><span>② 생성물의 안전성</span><span>③ 생성물의 활용</span></span></span></label>
+      </div>
+      <div class="part">
+        <h3><span class="n">3</span>작용 조건</h3>
+        <label class="q" for="e_text"><span class="sr" hidden>작용 조건</span><span class="field"><textarea id="e_text" data-k="e_text" placeholder=" "></textarea><span class="ph" aria-hidden="true"><span>① 작용 장소</span><span>② 작용 온도</span><span>③ 작용 pH</span><span>④ 효과적인 작용을 위해 추가적으로 필요한 조건(염분, 산소, 필요한 금속이온이나 조효소 등)</span></span></span></label>
+        <details class="hints">
+          <summary>장소별 환경 참고표</summary>
+          <div class="scroll"><table>
+            <thead><tr><th>장소</th><th>온도</th><th>pH</th><th>그 밖의 특징</th></tr></thead>
+            <tbody>
+              <tr><td>바닷물</td><td>대체로 0~30 °C</td><td>약 8 (약염기성)</td><td>염분이 높다</td></tr>
+              <tr><td>사람의 몸 (혈액)</td><td>약 37 °C</td><td>약 7.4</td><td>위는 pH 약 2, 소장은 약염기성</td></tr>
+              <tr><td>토양</td><td>계절에 따라 변함</td><td>흙에 따라 4~8 정도</td><td>여러 미생물, 금속 이온</td></tr>
+              <tr><td>공장의 반응기</td><td>사람이 정할 수 있음</td><td>사람이 정할 수 있음</td><td>온도를 높이면 반응이 빨라지지만 효소가 변성될 수 있음</td></tr>
+            </tbody>
+          </table></div>
+          <p class="saved">참고용 대략적인 값이에요. 정확한 값은 직접 찾아 확인하세요.</p>
+        </details>
+      </div>
+      <div class="part">
+        <h3><span class="n">4</span>작용 원리</h3>
+        <label class="q" for="a_site"><span>활성 부위 구조의 특징</span><textarea id="a_site" data-k="a_site"></textarea></label>
+        <label class="q" for="a_react"><span>화학반응 과정</span><textarea id="a_react" data-k="a_react"></textarea></label>
+        <label class="q" for="a_after"><span>반응 후 생성물의 처리</span><textarea id="a_after" data-k="a_after"></textarea></label>
+      </div>
+      <p class="goes">→ 보고서의 ‘효소 작용’ 칸 (기질 · 생성물 · 작용 조건 · 작용 원리)</p>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" data-step="3" data-title="STEP 4 기대 효과" hidden>
+    <div><h2>STEP 4. 기대 효과</h2><p class="lead">내 인공효소가 실제로 쓰이면 무엇이 달라지는지 정리해 보세요.</p></div>
+    <div class="sheet">
+      <label class="q" for="f_solve"><span>STEP 2의 문제가 어떻게 해결되나?</span><textarea id="f_solve" data-k="f_solve"></textarea></label>
+      <label class="q" for="f_better"><span>기존 방법보다 나은 점은?</span><textarea id="f_better" data-k="f_better"></textarea></label>
+      <label class="q" for="f_more"><span>환경·사회·경제적으로 기대되는 효과</span><textarea id="f_more" data-k="f_more"></textarea></label>
+      <label class="q" for="f_next"><span>실제로 쓰려면 더 해결해야 할 점 <small>(선택)</small></span><input type="text" id="f_next" data-k="f_next"></label>
+      <p class="goes">→ 보고서의 ‘기대 효과(효소 작용의 효과)’ 칸</p>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="step" data-step="4" data-title="내 보고서 보기" hidden>
+    <div><h2>내 보고서 보기</h2><p class="lead">워크북에 적은 내용이 탐구활동지 양식에 맞춰 들어갔어요. 빈칸이 있으면 해당 STEP으로 가서 채우고, 고칠 문장은 워크북에서 고치면 여기에도 바로 반영됩니다.</p></div>
+    <div class="report" id="report"></div>
+    <div class="pager">
+      <div class="confirm">
+        <button class="btn primary" id="pdfBtn" type="button">PDF로 저장하기</button>
+        <button class="btn" id="shareBtn" type="button" hidden>PDF 보내기 (카톡·드라이브 등)</button>
+        <button class="btn" id="copyBtn" type="button">내용 복사하기</button>
+        <span class="saved" id="copyMsg" role="status"></span>
+      </div>
+      <div class="confirm" id="resetBox"></div>
+    </div>
+    <textarea id="copyFallback" aria-label="복사할 보고서 내용" hidden readonly></textarea>
+  </section>
+
+  </main>
+
+  <div class="pager" style="margin-top:22px">
+    <button class="btn ghost" id="prevBtn" type="button">← 이전</button>
+    <span class="saved" id="savedMsg" role="status"></span>
+    <button class="btn primary" id="nextBtn" type="button">다음 →</button>
+  </div>
+
+  <details class="hints" style="margin-top:28px">
+    <summary>막혔을 때 보는 힌트 카드</summary>
+    <p class="saved">정답이 아니라 생각을 시작할 실마리입니다. 보고서에는 직접 찾아 확인한 내용을 적어요.</p>
+    <div class="scroll"><table>
+      <thead><tr><th></th><th>해양 플라스틱</th><th>토양·중금속</th><th>항생제 내성균</th></tr></thead>
+      <tbody>
+        <tr><th>기질</th><td>PET 사슬</td><td>독성 금속 이온 (예: 수은 이온)</td><td>세균 세포벽의 펩티도글리칸</td></tr>
+        <tr><th>반응</th><td>분해 (에스터 결합 가수 분해)</td><td>전환 (덜 독한 형태로)</td><td>분해 (세포벽 결합 끊기)</td></tr>
+        <tr><th>생성물</th><td>TPA, EG 등 재활용 원료</td><td>덜 독하거나 모으기 쉬운 형태</td><td>세포벽이 무너진 세균 (죽음)</td></tr>
+        <tr><th>작용 조건 고민</th><td>바닷물의 낮은 온도·염분 vs 공장의 높은 온도</td><td>흙의 pH가 지역마다 다름</td><td>사람 몸 속: 약 37 °C, pH 약 7.4</td></tr>
+        <tr><th>찾아볼 효소</th><td>PETase, FAST-PETase</td><td>수은 환원효소(MerA)</td><td>엔도라이신, 라이소자임</td></tr>
+      </tbody>
+    </table></div>
+    <p class="saved">핵심 개념: 활성 부위 · 기질 특이성 · 효소-기질 복합체 · 활성화 에너지 · 최적 온도와 최적 pH · 변성 · 촉매로서 재사용</p>
+  </details>
+</div>
+
+<div id="pdfStage" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  var KEY = 'enzyme-design-workbook-v1';
+  var data = {};
+  try { data = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { data = {}; }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function v(k){ var x = data[k]; return (typeof x === 'string') ? x.trim() : (x == null ? '' : String(x)); }
+
+  // ---- bind inputs ----
+  var fields = document.querySelectorAll('[data-k]');
+  fields.forEach(function(el){
+    var k = el.dataset.k;
+    if (data[k] != null) el.value = data[k];
+    el.addEventListener('input', function(){ data[k] = el.value; fit(el); save(); refresh(); });
+  });
+  // grow a box to its text (or to its guide text while empty)
+  function fit(el){
+    if (el.tagName !== 'TEXTAREA' || !el.offsetParent) return;
+    el.style.height = 'auto';
+    var ph = el.nextElementSibling, guide = (ph && ph.classList.contains('ph')) ? ph.offsetHeight + 24 : 0;
+    el.style.height = Math.max(el.scrollHeight + 2, guide) + 'px';
+  }
+  function fitAll(){ document.querySelectorAll('textarea[data-k]').forEach(fit); }
+  window.addEventListener('resize', fitAll);
+  var savedTimer;
+  function save(){
+    var ok = true;
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { ok = false; }
+    var msg = document.getElementById('savedMsg');
+    msg.textContent = ok ? '자동 저장됨' : '이 브라우저에서는 저장되지 않아요. 창을 닫기 전에 PDF로 저장해 두세요.';
+    clearTimeout(savedTimer);
+    if (ok) savedTimer = setTimeout(function(){ msg.textContent = ''; }, 1500);
+  }
+
+  // ---- steps ----
+  var steps = Array.prototype.slice.call(document.querySelectorAll('section.step'));
+  var rail = document.getElementById('rail');
+  var REQ = { 0:['n_full'], 1:['p_goal'], 2:['s_text','r_text','e_text','a_site','a_react','a_after'], 3:['f_solve','f_better','f_more'] };
+  steps.forEach(function(s, idx){
+    var b = document.createElement('button');
+    b.type = 'button';
+    if (idx === steps.length - 1) b.className = 'summary';
+    b.innerHTML = (idx === steps.length - 1 ? '' : '<span class="dot" aria-hidden="true"></span>') + esc(s.dataset.title);
+    b.addEventListener('click', function(){ go(idx); });
+    rail.appendChild(b);
+  });
+  var cur = 0;
+  try { var st = parseInt(sessionStorage.getItem(KEY + '-step2'), 10); if (st >= 0 && st < steps.length) cur = st; } catch (e) {}
+  function go(i){
+    cur = i;
+    steps.forEach(function(s, idx){ s.hidden = idx !== i; });
+    Array.prototype.forEach.call(rail.children, function(b, idx){
+      if (idx === i) { b.setAttribute('aria-current', 'page'); b.scrollIntoView({block:'nearest', inline:'nearest'}); }
+      else b.removeAttribute('aria-current');
+    });
+    document.getElementById('prevBtn').style.visibility = i === 0 ? 'hidden' : 'visible';
+    var nb = document.getElementById('nextBtn');
+    nb.style.visibility = i === steps.length - 1 ? 'hidden' : 'visible';
+    nb.textContent = i === steps.length - 2 ? '내 보고서 보기 →' : '다음 →';
+    try { sessionStorage.setItem(KEY + '-step2', String(i)); } catch (e) {}
+    fitAll();
+    refresh();
+    window.scrollTo({top:0});
+  }
+  document.getElementById('prevBtn').addEventListener('click', function(){ if (cur > 0) go(cur - 1); });
+  document.getElementById('nextBtn').addEventListener('click', function(){ if (cur < steps.length - 1) go(cur + 1); });
+
+  function refresh(){
+    Array.prototype.forEach.call(rail.children, function(btn, idx){
+      if (!REQ[idx]) return;
+      btn.classList.toggle('done', REQ[idx].every(function(k){ return !!v(k); }));
+    });
+    if (cur === steps.length - 1) renderReport();
+  }
+
+  // ---- report ----
+  var MECH = [['a_site','활성 부위 구조의 특징'], ['a_react','화학반응 과정'], ['a_after','반응 후 생성물의 처리']];
+  function effects(){
+    var list = [v('f_solve'), v('f_better'), v('f_more')].filter(Boolean);
+    if (v('f_next')) list.push('앞으로 해결할 점: ' + v('f_next'));
+    return list;
+  }
+  // forPdf: no "go to step" links, empty cells stay blank
+  function reportHtml(forPdf){
+    function cell(text, step){
+      if (text) return esc(text);
+      return forPdf ? '' : '<span class="empty">아직 비어 있어요. <button type="button" data-go="'+step+'">STEP '+(step+1)+'로 가기</button></span>';
+    }
+    var mechHas = MECH.some(function(m){ return v(m[0]); });
+    var mech = mechHas ? '<ol>' + MECH.map(function(m){
+      return '<li><b>' + m[1] + ':</b> ' + (v(m[0]) ? esc(v(m[0])) : (forPdf ? '' : '<span class="empty">비어 있어요</span>')) + '</li>';
+    }).join('') + '</ol>' : cell('', 2);
+    var eff = effects();
+    var effHtml = eff.length ? '<ol>' + eff.map(function(e){ return '<li>' + esc(e) + '</li>'; }).join('') + '</ol>' : cell('', 3);
+    return '<div class="rhead pb"><div class="rtitle"><span class="tag">[효소 탐구 프로젝트]</span><h2>문제 해결을 위한 인공효소 설계</h2></div>' +
+        '<div class="who"><div>학번: ' + esc(v('id_num')) + '</div><div>이름: ' + esc(v('id_name')) + '</div></div></div>' +
+      '<div class="rbody">' +
+        '<div class="row pb"><div class="k">인공효소 명칭</div><div class="v">' + cell(v('n_full'), 0) + '</div></div>' +
+        '<div class="row pb"><div class="k">인공효소 설계의<br>목적(해결 과제)</div><div class="v">' + cell(v('p_goal'), 1) + '</div></div>' +
+        '<div class="act"><div class="k">효소<br>작용</div><div class="sub">' +
+          '<div class="row pb"><div class="k">기질</div><div class="v">' + cell(v('s_text'), 2) + '</div></div>' +
+          '<div class="row pb"><div class="k">생성물</div><div class="v">' + cell(v('r_text'), 2) + '</div></div>' +
+          '<div class="row pb"><div class="k">작용 조건<br>(온도, pH 등)</div><div class="v">' + cell(v('e_text'), 2) + '</div></div>' +
+          '<div class="row pb"><div class="k">작용 원리<br>(단계별<br>서술)</div><div class="v">' + mech + '</div></div>' +
+        '</div></div>' +
+        '<div class="row pb"><div class="k">기대 효과<br>(효소 작용의 효과)</div><div class="v">' + effHtml + '</div></div>' +
+      '</div>';
+  }
+  function renderReport(){
+    var rep = document.getElementById('report');
+    rep.innerHTML = reportHtml(false);
+    rep.querySelectorAll('[data-go]').forEach(function(b){ b.addEventListener('click', function(){ go(+b.dataset.go); }); });
+  }
+  function reportText(){
+    var out = ['[효소 탐구 프로젝트] 문제 해결을 위한 인공효소 설계', '학번: ' + v('id_num') + '  이름: ' + v('id_name'), '',
+      '■ 인공효소 명칭', v('n_full'), '',
+      '■ 인공효소 설계의 목적(해결 과제)', v('p_goal'), '',
+      '■ 효소 작용',
+      '- 기질: ' + v('s_text'), '- 생성물: ' + v('r_text'), '- 작용 조건(온도, pH 등):', v('e_text'), '- 작용 원리(단계별 서술):'];
+    MECH.forEach(function(m, i){ out.push('  ' + (i + 1) + '. ' + m[1] + ': ' + v(m[0])); });
+    out.push('', '■ 기대 효과(효소 작용의 효과)');
+    effects().forEach(function(e, i){ out.push((i + 1) + '. ' + e); });
+    return out.join('\n');
+  }
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var text = reportText(), msg = document.getElementById('copyMsg'), fb = document.getElementById('copyFallback');
+    function fallback(){ fb.hidden = false; fb.value = text; fb.style.minHeight = '240px'; fb.focus(); fb.select(); msg.textContent = '아래 칸의 내용을 직접 복사해 주세요 (Ctrl+C).'; }
+    try { navigator.clipboard.writeText(text).then(function(){ msg.textContent = '복사했어요.'; }, fallback); } catch (e) { fallback(); }
+  });
+
+  // ---- PDF ----
+  function pdfName(){
+    var parts = ['인공효소설계', v('id_num'), v('id_name')].filter(Boolean).join('_');
+    return parts.replace(/[\\\/:*?"<>|]/g, '') + '.pdf';
+  }
+  async function buildPdf(){
+    var stage = document.getElementById('pdfStage');
+    stage.innerHTML = '<div class="paper report">' + reportHtml(true) + '</div>';
+    var paper = stage.firstChild;
+    try { await document.fonts.ready; } catch (e) {}
+    var scale = 2;
+    var canvas = await html2canvas(paper, { scale: scale, backgroundColor: '#ffffff', logging: false });
+    // page break candidates: bottom edge of each report row, in canvas pixels
+    var top = paper.getBoundingClientRect().top;
+    var cuts = Array.prototype.map.call(paper.querySelectorAll('.pb'), function(el){
+      return Math.round((el.getBoundingClientRect().bottom - top) * canvas.height / paper.offsetHeight);
+    }).sort(function(a, b){ return a - b; });
+    stage.innerHTML = '';
+
+    var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var M = 12, W = 210 - M * 2, H = 297 - M * 2;
+    var pxPerMm = canvas.width / W, pageH = Math.floor(H * pxPerMm);
+    var start = 0, first = true;
+    while (start < canvas.height - 2) {
+      var end = Math.min(canvas.height, start + pageH);
+      if (end < canvas.height) {
+        var fit = cuts.filter(function(c){ return c > start + pageH * 0.3 && c <= end; });
+        if (fit.length) end = fit[fit.length - 1];
+      }
+      var slice = document.createElement('canvas');
+      slice.width = canvas.width; slice.height = end - start;
+      var ctx = slice.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, slice.width, slice.height);
+      ctx.drawImage(canvas, 0, start, canvas.width, end - start, 0, 0, canvas.width, end - start);
+      if (!first) pdf.addPage();
+      pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', M, M, W, (end - start) / pxPerMm);
+      // a continued page starts mid-table: close it with a top line
+      if (!first) { pdf.setDrawColor(17, 17, 17); pdf.setLineWidth(0.25); pdf.line(M, M, M + W, M); }
+      first = false;
+      start = end;
+    }
+    return pdf.output('blob');
+  }
+  // the PDF is kept for the current answers so 'send' can open the share sheet right inside the tap
+  var cached = { key: null, blob: null };
+  async function currentPdf(){
+    var key = JSON.stringify(data);
+    if (cached.key !== key) { cached = { key: key, blob: await buildPdf() }; }
+    return cached.blob;
+  }
+  function ready(msg){
+    if (window.html2canvas && window.jspdf) return true;
+    msg.textContent = 'PDF 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';
+    return false;
+  }
+  document.getElementById('pdfBtn').addEventListener('click', async function(){
+    var btn = this, msg = document.getElementById('copyMsg');
+    if (!ready(msg)) return;
+    btn.disabled = true; msg.textContent = 'PDF를 만드는 중이에요…';
+    try {
+      var blob = await currentPdf();
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = pdfName(); document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+      msg.textContent = shareOk ? '다운로드 폴더(또는 파일 앱)를 확인하세요. 안 보이면 «PDF 보내기»를 눌러 주세요.' : '다운로드 폴더를 확인하세요.';
+    } catch (e) {
+      msg.textContent = 'PDF를 만들지 못했어요. 새로고침한 뒤 다시 눌러 주세요.';
+    } finally { btn.disabled = false; }
+  });
+  // phones and tablets: hand the file to the share sheet (KakaoTalk, Google Drive, Files ...)
+  var shareOk = false;
+  try { shareOk = !!(navigator.canShare && navigator.canShare({ files: [new File(['x'], 'a.pdf', { type: 'application/pdf' })] })); } catch (e) {}
+  var shareBtn = document.getElementById('shareBtn');
+  shareBtn.hidden = !shareOk;
+  shareBtn.addEventListener('click', async function(){
+    var msg = document.getElementById('copyMsg');
+    if (!ready(msg)) return;
+    var fresh = cached.key === JSON.stringify(data);
+    try {
+      if (!fresh) { shareBtn.disabled = true; msg.textContent = 'PDF를 만드는 중이에요…'; }
+      var file = new File([await currentPdf()], pdfName(), { type: 'application/pdf' });
+      shareBtn.disabled = false;
+      await navigator.share({ files: [file], title: pdfName() });
+      msg.textContent = '보냈어요.';
+    } catch (e) {
+      shareBtn.disabled = false;
+      if (e && e.name === 'AbortError') msg.textContent = '보내기를 취소했어요.';
+      else if (e && e.name === 'NotAllowedError') msg.textContent = 'PDF가 준비됐어요. «PDF 보내기»를 한 번 더 눌러 주세요.';
+      else msg.textContent = '보내지 못했어요. «PDF로 저장하기»를 눌러 주세요.';
+    }
+  });
+
+  // KakaoTalk's in-app browser cannot save files: offer to reopen the page in the phone's own browser
+  if (/KAKAOTALK/i.test(navigator.userAgent)) {
+    var kb = document.getElementById('kakaoBox');
+    kb.hidden = false;
+    document.getElementById('kakaoBtn').addEventListener('click', function(){
+      location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    });
+  }
+
+  var resetBox = document.getElementById('resetBox');
+  function resetIdle(){
+    resetBox.innerHTML = '<button class="btn danger" id="resetBtn" type="button">모두 지우기</button>';
+    document.getElementById('resetBtn').addEventListener('click', function(){
+      resetBox.innerHTML = '<span class="saved">입력한 내용이 모두 지워져요.</span><button class="btn danger" type="button" id="resetYes">지우기</button><button class="btn" type="button" id="resetNo">취소</button>';
+      document.getElementById('resetYes').addEventListener('click', function(){
+        data = {}; try { localStorage.removeItem(KEY); } catch (e) {}
+        fields.forEach(function(el){ el.value = ''; el.style.height = ''; });
+        resetIdle(); go(0);
+      });
+      document.getElementById('resetNo').addEventListener('click', resetIdle);
+    });
+  }
+  resetIdle();
+  go(cur);
+})();
+</script>
+
+</body></html>
