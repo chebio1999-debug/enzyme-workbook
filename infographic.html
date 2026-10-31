@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>나의 인공효소 소개하기</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* One scrolling page: the sheet itself is the infographic form; the PDF is drawn from a fixed A4-width copy of it */
+:root{
+  --navy:#1f3a5f; --teal:#128c9a; --coral:#e85d3f; --gold:#f2b134; --gold-ink:#b37a08;
+  --ink:#2b333d; --hint:#7a8693; --line:#c9d3dd; --pale:#f3f7fa; --pale-teal:#e6f4f5; --pale-coral:#fdeeea;
+  --bg:#e9eef3; --font:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;word-break:keep-all}
+.wrap{max-width:860px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 64px}
+.kakao{margin-bottom:14px;background:#fff4d6;border-radius:10px;padding:12px 14px;display:grid;gap:8px;justify-items:start}
+
+/* ---- sheet ---- */
+.sheet{background:#fff;border-radius:6px;box-shadow:0 2px 14px rgba(31,58,95,.12);padding:28px 30px 32px}
+.head{background:var(--navy);border-radius:14px;padding:22px 24px;display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.head>*{min-width:0;max-width:100%}
+.head h1{flex:1;margin:0;color:#fff;font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1.2;text-align:center}
+.idbox{background:#fff;border-radius:10px;padding:6px 12px;width:200px;flex:none;display:grid}
+.idbox label{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:5px 0;font-weight:700;color:var(--navy);font-size:14px}
+.idbox label+label{border-top:1px solid var(--line)}
+.idbox input{flex:1;min-width:0;width:100%;border:0;font:inherit;font-weight:500;color:var(--ink);padding:2px 0;background:transparent}
+
+section{margin-top:20px}
+.sec-title{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+.num{width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.sec-title h2{margin:0;font-size:19px;font-weight:800;color:var(--navy)}
+
+.card{border-radius:12px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.lab{font-weight:700;font-size:13.5px}
+.pale{background:var(--pale)}
+.bordered{background:#fff;border:1px solid var(--line)}
+textarea,.namefield{width:100%;border:0;background:transparent;font:inherit;color:var(--ink);resize:none;padding:0;line-height:1.55;overflow:hidden}
+textarea::placeholder,input::placeholder{color:#a3adb8}
+textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-radius:4px}
+
+.row-name{display:grid;grid-template-columns:1fr 2fr;gap:0;background:var(--pale);border-radius:12px;padding:14px 16px;align-items:start}
+.row-name .namefield{font-size:24px;font-weight:800;color:var(--coral)}
+.row-name .meaning{border-left:1px solid var(--line);padding-left:16px;display:grid;gap:3px}
+.row-name .meaning .lab{color:var(--navy)}
+
+.two{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch}
+.arrow{align-self:center;width:30px;height:20px;flex:none}
+.prob{background:var(--pale-coral)} .prob .lab{color:var(--coral)}
+.solv{background:var(--pale-teal)} .solv .lab{color:var(--teal)}
+
+.imgbox{border:2px dashed var(--line);background:var(--pale);border-radius:12px;min-height:250px;display:grid;place-items:center;padding:12px;position:relative}
+.imgbox img{max-width:100%;max-height:420px;display:block;border-radius:6px}
+.imgbox .empty{text-align:center;display:grid;gap:4px;justify-items:center}
+.imgbox .empty b{color:var(--navy);font-size:16px}
+.imgbox .empty span{color:var(--hint);font-size:13px}
+.imgtools{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+
+.react{background:var(--pale);border-radius:12px;padding:12px;display:grid;gap:10px}
+.three{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:stretch}
+.three .mid{border:2px solid var(--navy)}
+.lab.sub{color:var(--teal)} .lab.rx{color:var(--navy)} .lab.pro{color:var(--gold-ink)}
+.cond{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cond .card{border-left:6px solid var(--coral);border-radius:8px 12px 12px 8px}
+.cond .card.ph{border-left-color:var(--teal)}
+.cond .t .lab{color:var(--coral)} .cond .ph .lab{color:var(--teal)}
+.summary{margin-top:10px;border:2px solid var(--navy);border-radius:12px;padding:10px 14px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.summary .lab{color:var(--navy);font-weight:800;padding-top:1px}
+
+.effects{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.effects .card{gap:6px}
+.etitle{display:flex;align-items:center;gap:8px}
+.etitle .dot{width:24px;height:24px;border-radius:50%;color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.et{font-weight:700;color:var(--navy)}
+
+/* ---- actions ---- */
+.actions{margin-top:22px;background:#fff;border-radius:14px;padding:18px;display:grid;gap:10px;justify-items:center;text-align:center}
+.btn{font:inherit;font-weight:700;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--navy);padding:10px 16px;cursor:pointer}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);font-size:17px;padding:14px 28px}
+.btn.small{font-size:13px;padding:6px 12px}
+.btn.danger{color:var(--coral)}
+.btn:disabled{opacity:.6;cursor:default}
+.msg{color:var(--hint);font-size:14px;min-height:1.4em}
+.saved{color:var(--hint);font-size:13px}
+
+/* phones: stack the columns (the PDF copy keeps the A4 layout) */
+@media (max-width:680px){
+  .sheet:not(.fixed){padding:18px 14px 22px}
+  .sheet:not(.fixed) .head{flex-direction:column;align-items:stretch}
+  .sheet:not(.fixed) .head .idbox{width:auto}
+  .sheet:not(.fixed) .head h1{font-size:26px}
+  .sheet:not(.fixed) .row-name{grid-template-columns:1fr;gap:10px}
+  .sheet:not(.fixed) .row-name .meaning{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:10px}
+  .sheet:not(.fixed) .two,.sheet:not(.fixed) .three{grid-template-columns:1fr}
+  .sheet:not(.fixed) .arrow{transform:rotate(90deg);justify-self:center}
+  .sheet:not(.fixed) .cond,.sheet:not(.fixed) .effects{grid-template-columns:1fr}
+}
+
+/* fixed A4-width copy for the PDF, kept off screen */
+#pdfStage{position:fixed;left:-12000px;top:0;pointer-events:none}
+.sheet.fixed{width:794px;border-radius:0;box-shadow:none;padding:30px 36px 34px}
+.sheet.fixed .val{white-space:pre-wrap;min-height:1.55em}
+.sheet.fixed .imgbox{border-style:solid;min-height:230px}
+.sheet.fixed .imgbox img{max-height:330px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kakao" id="kakaoBox" hidden><span>카카오톡 안에서 열면 PDF가 저장되지 않음</span><button class="btn small" id="kakaoBtn" type="button">다른 브라우저로 열기</button></div>
+
+  <main class="sheet" id="sheet">
+    <div class="head">
+      <h1>나의 인공효소 소개하기</h1>
+      <div class="idbox">
+        <label>학번 <input data-k="id_num" inputmode="numeric" maxlength="10" autocomplete="off"></label>
+        <label>이름 <input data-k="id_name" maxlength="20" autocomplete="off"></label>
+      </div>
+    </div>
+
+    <section>
+      <div class="sec-title"><span class="num">1</span><h2>인공효소 이름과 의미</h2></div>
+      <div class="row-name">
+        <textarea class="namefield" data-k="name" rows="1" maxlength="40" placeholder="효소 이름"></textarea>
+        <div class="meaning"><span class="lab">이름의 의미</span>
+          <textarea data-k="meaning" rows="2" maxlength="120" placeholder="이름에 담긴 뜻을 한두 줄로 씀&#10;예) HT = Hyper-Thermo(초내열성), PETase = PET 분해 효소"></textarea></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-title"><span class="num">2</span><h2>효소 설계 목적 (해결 과제)</h2></div>
+      <div class="two">
+        <div class="card prob"><span class="lab">기존 문제</span><textarea data-k="problem" rows="3" maxlength="200" placeholder="해결하고 싶은 문제와 그 원인을 씀 (기존 방법·천연 효소의 한계)"></textarea></div>
+        <svg class="arrow" viewBox="0 0 30 20" aria-hidden="true"><path d="M0 7h17V1l13 9-13 9v-6H0z" fill="#1f3a5f"/></svg>
+        <div class="card solv"><span class="lab">해결 방법</span><textarea data-k="solution" rows="3" maxlength="200" placeholder="이 효소가 하는 일과 기존과 달라진 점을 씀"></textarea></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-title"><span class="num">3</span><h2>인공효소의 구조</h2></div>
+      <div class="imgbox" id="imgBox"></div>
+      <div class="imgtools">
+        <button class="btn small" type="button" id="imgPick">그림 올리기</button>
+        <button class="btn small danger" type="button" id="imgClear" hidden>그림 지우기</button>
+        <input type="file" id="imgFile" accept="image/*" hidden>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-title"><span class="num">4</span><h2>효소 작용 반응</h2></div>
+      <div class="react">
+        <div class="three">
+          <div class="card bordered"><span class="lab sub">기질</span><textarea data-k="substrate" rows="1" maxlength="60" placeholder="이름 쓰기"></textarea></div>
+          <svg class="arrow" viewBox="0 0 30 20" aria-hidden="true"><path d="M0 7h17V1l13 9-13 9v-6H0z" fill="#1f3a5f"/></svg>
+          <div class="card bordered mid"><span class="lab rx">반응 종류</span><textarea data-k="rtype" rows="1" maxlength="40" placeholder="분해, 합성, 전환 등"></textarea></div>
+          <svg class="arrow" viewBox="0 0 30 20" aria-hidden="true"><path d="M0 7h17V1l13 9-13 9v-6H0z" fill="#1f3a5f"/></svg>
+          <div class="card bordered"><span class="lab pro">생성물</span><textarea data-k="product" rows="1" maxlength="60" placeholder="이름 쓰기"></textarea></div>
+        </div>
+        <div class="cond">
+          <div class="card bordered t"><span class="lab">작용 조건 · 최적 온도</span><textarea data-k="temp" rows="2" maxlength="150" placeholder="온도와 그 이유를 씀"></textarea></div>
+          <div class="card bordered ph"><span class="lab">작용 조건 · 최적 pH</span><textarea data-k="ph" rows="2" maxlength="150" placeholder="pH와 그 이유를 씀"></textarea></div>
+        </div>
+      </div>
+      <div class="summary"><span class="lab">한 줄 요약</span>
+        <textarea data-k="summary" rows="2" maxlength="150" placeholder="효소 반응을 한 문장으로 씀&#10;예) HT-PETase는 70℃에서 PET의 에스테르 결합을 가수분해하여 TPA와 EG를 만듦"></textarea></div>
+    </section>
+
+    <section>
+      <div class="sec-title"><span class="num">5</span><h2>효소 활용 기대 효과</h2></div>
+      <div class="effects">
+        <div class="card bordered"><div class="etitle"><span class="dot" style="background:var(--coral)">1</span><textarea class="et" data-k="e1t" rows="1" maxlength="30" placeholder="효과 제목"></textarea></div><textarea data-k="e1" rows="3" maxlength="120" placeholder="좋아지는 점을 한두 줄로 씀"></textarea></div>
+        <div class="card bordered"><div class="etitle"><span class="dot" style="background:var(--teal)">2</span><textarea class="et" data-k="e2t" rows="1" maxlength="30" placeholder="효과 제목"></textarea></div><textarea data-k="e2" rows="3" maxlength="120" placeholder="좋아지는 점을 한두 줄로 씀"></textarea></div>
+        <div class="card bordered"><div class="etitle"><span class="dot" style="background:var(--gold)">3</span><textarea class="et" data-k="e3t" rows="1" maxlength="30" placeholder="효과 제목"></textarea></div><textarea data-k="e3" rows="3" maxlength="120" placeholder="좋아지는 점을 한두 줄로 씀"></textarea></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="actions">
+    <button class="btn primary" id="pdfBtn" type="button">PDF로 저장하기</button>
+    <p class="msg" id="msg"></p>
+    <div id="resetBox"></div>
+  </div>
+</div>
+<div id="pdfStage" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  var KEY = 'enzyme-infographic-v1';
+  var data = {};
+  try { data = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { data = {}; }
+  var msg = document.getElementById('msg');
+  var fields = Array.prototype.slice.call(document.querySelectorAll('#sheet [data-k]'));
+
+  function save(){
+    try { localStorage.setItem(KEY, JSON.stringify(data)); return true; }
+    catch (e) { msg.textContent = '이 브라우저에는 저장되지 않음. 창을 닫기 전에 PDF로 저장해 둘 것'; return false; }
+  }
+  function grow(el){ if (el.tagName === 'TEXTAREA') { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; } }
+  fields.forEach(function(el){
+    el.value = data[el.dataset.k] || '';
+    el.addEventListener('input', function(){ data[el.dataset.k] = el.value; save(); grow(el); });
+  });
+  function growAll(){ fields.forEach(grow); }
+  window.addEventListener('resize', growAll);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(growAll);
+  growAll();
+
+  // ---- structure image: shrunk before storing so it fits in browser storage ----
+  var imgBox = document.getElementById('imgBox'), imgFile = document.getElementById('imgFile'), imgClear = document.getElementById('imgClear');
+  function drawImg(){
+    if (data.img) {
+      imgBox.innerHTML = '<img alt="인공효소 구조 그림" src="' + data.img + '">';
+      imgClear.hidden = false;
+      document.getElementById('imgPick').textContent = '그림 바꾸기';
+    } else {
+      imgBox.innerHTML = '<div class="empty"><b>구조 그림 넣기</b><span>AI로 만든 구조 이미지 또는 직접 그린 그림</span></div>';
+      imgClear.hidden = true;
+      document.getElementById('imgPick').textContent = '그림 올리기';
+    }
+  }
+  document.getElementById('imgPick').addEventListener('click', function(){ imgFile.click(); });
+  imgBox.addEventListener('click', function(){ if (!data.img) imgFile.click(); });
+  imgFile.addEventListener('change', function(){
+    var f = imgFile.files && imgFile.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var im = new Image();
+      im.onload = function(){
+        var max = 1400, s = Math.min(1, max / Math.max(im.width, im.height));
+        var c = document.createElement('canvas'); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+        var ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(im, 0, 0, c.width, c.height);
+        data.img = c.toDataURL('image/jpeg', 0.85);
+        if (!save()) { /* too big for storage: keep it for this visit only */ }
+        drawImg(); imgFile.value = '';
+      };
+      im.onerror = function(){ msg.textContent = '그림을 열 수 없음. 다른 그림 파일(jpg, png)로 다시 올릴 것'; };
+      im.src = reader.result;
+    };
+    reader.readAsDataURL(f);
+  });
+  imgClear.addEventListener('click', function(){ delete data.img; save(); drawImg(); });
+  drawImg();
+
+  // ---- PDF: copy the sheet at A4 width, swap inputs for text, fit it on one A4 page ----
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function buildCopy(){
+    var stage = document.getElementById('pdfStage');
+    var copy = document.getElementById('sheet').cloneNode(true);
+    copy.id = ''; copy.classList.add('fixed');
+    copy.querySelectorAll('[data-k]').forEach(function(el){
+      var d = document.createElement('div');
+      d.className = el.className + ' val';
+      if (el.tagName === 'INPUT') d.style.cssText = 'flex:1;font-weight:500;color:#2b333d';
+      d.innerHTML = esc(data[el.dataset.k] || '');
+      el.parentNode.replaceChild(d, el);
+    });
+    if (!data.img) copy.querySelector('.imgbox').innerHTML = '';
+    var tools = copy.querySelector('.imgtools'); if (tools) tools.remove();
+    stage.innerHTML = ''; stage.appendChild(copy);
+    return copy;
+  }
+  async function buildPdf(){
+    var copy = buildCopy();
+    try { await document.fonts.ready; } catch (e) {}
+    var canvas = await html2canvas(copy, { scale: 2, backgroundColor: '#ffffff', logging: false });
+    document.getElementById('pdfStage').innerHTML = '';
+    var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var M = 6, W = 210 - M * 2, H = 297 - M * 2;
+    var w = W, h = canvas.height * W / canvas.width;
+    if (h > H) { h = H; w = canvas.width * H / canvas.height; }
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (210 - w) / 2, M, w, h);
+    return pdf.output('blob');
+  }
+  function pdfName(){
+    var parts = ['나의인공효소', data.id_num, data.id_name].filter(Boolean).join('_');
+    return parts.replace(/[\\\/:*?"<>|\s]/g, '') + '.pdf';
+  }
+  document.getElementById('pdfBtn').addEventListener('click', async function(){
+    var btn = this;
+    if (!(window.html2canvas && window.jspdf)) { msg.textContent = 'PDF 도구를 불러오지 못함. 인터넷 연결을 확인하고 새로고침할 것'; return; }
+    if (!data.id_num || !data.id_name) { msg.textContent = '맨 위에 학번과 이름을 먼저 쓸 것'; document.querySelector('[data-k="id_num"]').focus(); return; }
+    btn.disabled = true; msg.textContent = 'PDF를 만드는 중…';
+    try {
+      var blob = await buildPdf();
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = pdfName(); document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+      msg.textContent = '저장됨. 다운로드 폴더(아이폰·아이패드는 파일 앱)를 확인할 것';
+    } catch (e) {
+      msg.textContent = 'PDF를 만들지 못함. 새로고침한 뒤 다시 누를 것';
+    } finally { btn.disabled = false; }
+  });
+
+  // KakaoTalk's in-app browser cannot save files
+  if (/KAKAOTALK/i.test(navigator.userAgent)) {
+    document.getElementById('kakaoBox').hidden = false;
+    document.getElementById('kakaoBtn').addEventListener('click', function(){
+      location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    });
+  }
+
+  var resetBox = document.getElementById('resetBox');
+  function resetIdle(){
+    resetBox.innerHTML = '<button class="btn small danger" id="resetBtn" type="button">모두 지우기</button>';
+    document.getElementById('resetBtn').addEventListener('click', function(){
+      resetBox.innerHTML = '<span class="saved">입력한 내용과 그림이 모두 지워짐 </span><button class="btn small danger" type="button" id="resetYes">지우기</button> <button class="btn small" type="button" id="resetNo">취소</button>';
+      document.getElementById('resetYes').addEventListener('click', function(){
+        data = {}; try { localStorage.removeItem(KEY); } catch (e) {}
+        fields.forEach(function(el){ el.value = ''; grow(el); });
+        drawImg(); resetIdle(); msg.textContent = '';
+      });
+      document.getElementById('resetNo').addEventListener('click', resetIdle);
+    });
+  }
+  resetIdle();
+})();
+</script>
+</body>
+</html>
