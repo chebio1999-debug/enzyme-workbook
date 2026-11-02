@@ -30,12 +30,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15p
 .idbox input{flex:1;min-width:0;width:100%;border:0;font:inherit;font-weight:500;color:var(--ink);padding:2px 0;background:transparent}
 
 section{margin-top:20px}
-/* landscape: ①~③ on the left, ④~⑤ on the right; the last section of each column fills the leftover height */
+/* landscape: ①~③ on the left, ④~⑤ on the right; the structure picture keeps a fixed height, ② and ⑤ take up the leftover height */
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}
 .col{display:flex;flex-direction:column;min-width:0}
 .col>section:first-child{margin-top:0}
 .col>section.grow{flex:1;display:flex;flex-direction:column}
-.grow>.imgbox,.grow>.effects{flex:1}
+.grow>.two,.grow>.effects{flex:1}
 .sec-title{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px}
 .num{width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
 .sec-title h2{margin:0;font-size:19px;font-weight:800;color:var(--navy)}
@@ -58,8 +58,8 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
 .prob{background:var(--pale-coral)} .prob .lab{color:var(--coral)}
 .solv{background:var(--pale-teal)} .solv .lab{color:var(--teal)}
 
-.imgbox{border:2px dashed var(--line);background:var(--pale);border-radius:12px;min-height:250px;display:grid;place-items:center;padding:12px;position:relative}
-.imgbox img{max-width:100%;max-height:420px;display:block;border-radius:6px}
+.imgbox{border:2px dashed var(--line);background:var(--pale);border-radius:12px;height:320px;display:grid;place-items:center;padding:12px;position:relative}
+.imgbox img{max-width:100%;max-height:292px;display:block;border-radius:6px}
 .imgbox .empty{text-align:center;display:grid;gap:4px;justify-items:center}
 .imgbox .empty b{color:var(--navy);font-size:16px}
 .imgbox .empty span{color:var(--hint);font-size:13px}
@@ -113,12 +113,18 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
 /* fixed landscape-A4 copy (1123×794px) for the PDF, kept off screen */
 #pdfStage{position:fixed;left:-12000px;top:0;pointer-events:none}
 .sheet.fixed{width:1123px;min-height:794px;border-radius:0;box-shadow:none;padding:24px 32px 28px;display:flex;flex-direction:column}
-.sheet.fixed .head{padding:14px 22px;margin-bottom:18px}
+.sheet.fixed .head{padding:12px 22px;margin-bottom:16px}
+.sheet.fixed .idbox{width:auto;display:flex;gap:14px;padding:6px 14px}
+.sheet.fixed .idbox label{flex:none;min-width:100px}
+.sheet.fixed .idbox label+label{border-top:0;border-left:1px solid var(--line);padding-left:14px}
 .sheet.fixed .head h1{font-size:30px}
-.sheet.fixed .cols{flex:1}
+.sheet.fixed .cols{flex:1;grid-template-columns:11fr 9fr}
+.sheet.fixed section{margin-top:14px}
+.sheet.fixed .sec-title{margin-bottom:7px}
 .sheet.fixed .val{white-space:pre-wrap;min-height:1.55em}
-.sheet.fixed .imgbox{border-style:solid;min-height:200px}
-.sheet.fixed .imgbox img{max-height:290px}
+/* about 46% of the left column (~660px); long text in ①·② shrinks instead of the picture */
+.sheet.fixed .imgbox{border-style:solid;height:305px;padding:8px}
+.sheet.fixed .imgbox img{max-height:285px}
 </style>
 </head>
 <body>
@@ -140,12 +146,12 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
       <div class="sec-title"><span class="num">1</span><h2>인공효소 이름과 의미</h2></div>
       <div class="row-name">
         <textarea class="namefield" data-k="name" rows="1" maxlength="40" placeholder="효소 이름"></textarea>
-        <div class="meaning"><span class="lab">이름의 의미</span>
-          <textarea data-k="meaning" rows="2" maxlength="120" placeholder="이름에 담긴 뜻을 한두 줄로 씀&#10;예) HT = Hyper-Thermo(초내열성), PETase = PET 분해 효소"></textarea></div>
+        <div class="meaning">
+          <textarea data-k="meaning" rows="2" maxlength="120" placeholder="이름의 의미: 이름에 담긴 뜻을 한두 줄로 씀&#10;예) HT = Hyper-Thermo(초내열성), PETase = PET 분해 효소"></textarea></div>
       </div>
     </section>
 
-    <section>
+    <section class="grow">
       <div class="sec-title"><span class="num">2</span><h2>효소 설계 목적 (해결 과제)</h2></div>
       <div class="two">
         <div class="card prob"><span class="lab">기존 문제</span><textarea data-k="problem" rows="3" maxlength="200" placeholder="해결하고 싶은 문제와 그 원인을 씀 (기존 방법·천연 효소의 한계)"></textarea></div>
@@ -154,7 +160,7 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
       </div>
     </section>
 
-    <section class="grow">
+    <section>
       <div class="sec-title"><span class="num">3</span><h2>인공효소의 구조</h2></div>
       <div class="imgbox" id="imgBox"></div>
       <div class="imgtools">
@@ -283,9 +289,25 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
     stage.innerHTML = ''; stage.appendChild(copy);
     return copy;
   }
+  // a column whose text runs past the A4 height gets smaller text (down to 70%), so the picture and the page keep their size
+  function fitText(copy){
+    var PAGE = 794, cols = copy.querySelector('.cols');
+    cols.style.alignItems = 'start';
+    var avail = PAGE - (copy.offsetHeight - cols.offsetHeight);
+    copy.querySelectorAll('.col').forEach(function(col){
+      var vals = Array.prototype.slice.call(col.querySelectorAll('.val'));
+      var base = vals.map(function(v){ return parseFloat(getComputedStyle(v).fontSize); });
+      for (var k = 1; col.offsetHeight > avail && k > 0.7; ) {
+        k = Math.max(0.7, k - 0.03);
+        vals.forEach(function(v, i){ v.style.fontSize = (base[i] * k) + 'px'; });
+      }
+    });
+    cols.style.alignItems = '';
+  }
   async function buildPdf(){
     var copy = buildCopy();
     try { await document.fonts.ready; } catch (e) {}
+    fitText(copy);
     var canvas = await html2canvas(copy, { scale: 2, backgroundColor: '#ffffff', logging: false });
     document.getElementById('pdfStage').innerHTML = '';
     var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
