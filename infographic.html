@@ -5,7 +5,7 @@
 <title>나의 인공효소 소개하기</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
 <style>
-/* One scrolling page: the sheet itself is the infographic form; the PDF is drawn from a fixed A4-width copy of it */
+/* One scrolling page: the sheet itself is the infographic form; the PDF is drawn from a fixed landscape-A4 copy of it */
 :root{
   --navy:#1f3a5f; --teal:#128c9a; --coral:#e85d3f; --gold:#f2b134; --gold-ink:#b37a08;
   --ink:#2b333d; --hint:#7a8693; --line:#c9d3dd; --pale:#f3f7fa; --pale-teal:#e6f4f5; --pale-coral:#fdeeea;
@@ -16,7 +16,7 @@
 [hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;word-break:keep-all}
-.wrap{max-width:860px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 64px}
+.wrap{max-width:1180px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 64px}
 .kakao{margin-bottom:14px;background:#fff4d6;border-radius:10px;padding:12px 14px;display:grid;gap:8px;justify-items:start}
 
 /* ---- sheet ---- */
@@ -30,6 +30,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15p
 .idbox input{flex:1;min-width:0;width:100%;border:0;font:inherit;font-weight:500;color:var(--ink);padding:2px 0;background:transparent}
 
 section{margin-top:20px}
+/* landscape: ①~③ on the left, ④~⑤ on the right; the last section of each column fills the leftover height */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}
+.col{display:flex;flex-direction:column;min-width:0}
+.col>section:first-child{margin-top:0}
+.col>section.grow{flex:1;display:flex;flex-direction:column}
+.grow>.imgbox,.grow>.effects{flex:1}
 .sec-title{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px}
 .num{width:27px;height:27px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
 .sec-title h2{margin:0;font-size:19px;font-weight:800;color:var(--navy)}
@@ -86,7 +92,12 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
 .msg{color:var(--hint);font-size:14px;min-height:1.4em}
 .saved{color:var(--hint);font-size:13px}
 
-/* phones: stack the columns (the PDF copy keeps the A4 layout) */
+/* narrow screens: one column (the PDF copy keeps the landscape layout) */
+@media (max-width:960px){
+  .sheet:not(.fixed) .cols{grid-template-columns:1fr;gap:0}
+  .sheet:not(.fixed) .col+.col>section:first-child{margin-top:20px}
+}
+/* phones: stack the inner columns too */
 @media (max-width:680px){
   .sheet:not(.fixed){padding:18px 14px 22px}
   .sheet:not(.fixed) .head{flex-direction:column;align-items:stretch}
@@ -99,12 +110,15 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
   .sheet:not(.fixed) .cond,.sheet:not(.fixed) .effects{grid-template-columns:1fr}
 }
 
-/* fixed A4-width copy for the PDF, kept off screen */
+/* fixed landscape-A4 copy (1123×794px) for the PDF, kept off screen */
 #pdfStage{position:fixed;left:-12000px;top:0;pointer-events:none}
-.sheet.fixed{width:794px;border-radius:0;box-shadow:none;padding:30px 36px 34px}
+.sheet.fixed{width:1123px;min-height:794px;border-radius:0;box-shadow:none;padding:24px 32px 28px;display:flex;flex-direction:column}
+.sheet.fixed .head{padding:14px 22px;margin-bottom:18px}
+.sheet.fixed .head h1{font-size:30px}
+.sheet.fixed .cols{flex:1}
 .sheet.fixed .val{white-space:pre-wrap;min-height:1.55em}
-.sheet.fixed .imgbox{border-style:solid;min-height:230px}
-.sheet.fixed .imgbox img{max-height:330px}
+.sheet.fixed .imgbox{border-style:solid;min-height:200px}
+.sheet.fixed .imgbox img{max-height:290px}
 </style>
 </head>
 <body>
@@ -120,6 +134,8 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
       </div>
     </div>
 
+    <div class="cols">
+    <div class="col">
     <section>
       <div class="sec-title"><span class="num">1</span><h2>인공효소 이름과 의미</h2></div>
       <div class="row-name">
@@ -138,7 +154,7 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
       </div>
     </section>
 
-    <section>
+    <section class="grow">
       <div class="sec-title"><span class="num">3</span><h2>인공효소의 구조</h2></div>
       <div class="imgbox" id="imgBox"></div>
       <div class="imgtools">
@@ -147,7 +163,9 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
         <input type="file" id="imgFile" accept="image/*" hidden>
       </div>
     </section>
+    </div>
 
+    <div class="col">
     <section>
       <div class="sec-title"><span class="num">4</span><h2>효소 작용 반응</h2></div>
       <div class="react">
@@ -167,7 +185,7 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
         <textarea data-k="summary" rows="2" maxlength="150" placeholder="효소 반응을 한 문장으로 씀&#10;예) HT-PETase는 70℃에서 PET의 에스테르 결합을 가수분해하여 TPA와 EG를 만듦"></textarea></div>
     </section>
 
-    <section>
+    <section class="grow">
       <div class="sec-title"><span class="num">5</span><h2>효소 활용 기대 효과</h2></div>
       <div class="effects">
         <div class="card bordered"><div class="etitle"><span class="dot" style="background:var(--coral)">1</span><textarea class="et" data-k="e1t" rows="1" maxlength="30" placeholder="효과 제목"></textarea></div><textarea data-k="e1" rows="3" maxlength="120" placeholder="좋아지는 점을 한두 줄로 씀"></textarea></div>
@@ -175,6 +193,8 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
         <div class="card bordered"><div class="etitle"><span class="dot" style="background:var(--gold)">3</span><textarea class="et" data-k="e3t" rows="1" maxlength="30" placeholder="효과 제목"></textarea></div><textarea data-k="e3" rows="3" maxlength="120" placeholder="좋아지는 점을 한두 줄로 씀"></textarea></div>
       </div>
     </section>
+    </div>
+    </div>
   </main>
 
   <div class="actions">
@@ -245,7 +265,7 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
   imgClear.addEventListener('click', function(){ delete data.img; save(); drawImg(); });
   drawImg();
 
-  // ---- PDF: copy the sheet at A4 width, swap inputs for text, fit it on one A4 page ----
+  // ---- PDF: copy the sheet at landscape-A4 width, swap inputs for text, fit it on one landscape A4 page ----
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function buildCopy(){
     var stage = document.getElementById('pdfStage');
@@ -268,11 +288,11 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
     try { await document.fonts.ready; } catch (e) {}
     var canvas = await html2canvas(copy, { scale: 2, backgroundColor: '#ffffff', logging: false });
     document.getElementById('pdfStage').innerHTML = '';
-    var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-    var M = 6, W = 210 - M * 2, H = 297 - M * 2;
+    var pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+    var M = 6, W = 297 - M * 2, H = 210 - M * 2;
     var w = W, h = canvas.height * W / canvas.width;
     if (h > H) { h = H; w = canvas.width * H / canvas.height; }
-    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (210 - w) / 2, M, w, h);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', (297 - w) / 2, M, w, h);
     return pdf.output('blob');
   }
   function pdfName(){
