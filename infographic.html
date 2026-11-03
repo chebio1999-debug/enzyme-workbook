@@ -95,6 +95,14 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
 .msg{color:var(--hint);font-size:14px;min-height:1.4em}
 .saved{color:var(--hint);font-size:13px}
 
+/* ---- AI image prompt box (above the sheet, not part of the PDF) ---- */
+.prompt{margin-bottom:18px;background:#fff;border-radius:14px;border-top:5px solid var(--teal);box-shadow:0 2px 14px rgba(31,58,95,.12);padding:16px 18px;display:grid;gap:10px}
+.prompt-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.prompt h2{margin:0;font-size:18px;color:var(--navy)}
+.prompt p{margin:0;color:var(--hint);font-size:14px}
+.prompt pre{margin:0;background:var(--pale);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:13px/1.6 Consolas,"Courier New",monospace;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+.btn.teal{background:var(--teal);color:#fff;border-color:var(--teal)}
+
 /* narrow screens: one column (the PDF copy keeps the landscape layout) */
 @media (max-width:960px){
   .sheet:not(.fixed) .cols{grid-template-columns:1fr;gap:0}
@@ -133,6 +141,22 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
 <body>
 <div class="wrap">
   <div class="kakao" id="kakaoBox" hidden><span>카카오톡 안에서도 제출은 됨. «PDF로 저장하기»(내 기기에 저장)는 다른 브라우저에서만 됨</span><button class="btn small" id="kakaoBtn" type="button">다른 브라우저로 열기</button></div>
+
+  <section class="prompt" aria-labelledby="promptTitle">
+    <div class="prompt-top">
+      <h2 id="promptTitle">AI 이미지 생성 프롬프트</h2>
+      <button class="btn teal" type="button" id="promptCopy">프롬프트 복사</button>
+    </div>
+    <p>«프롬프트 복사»를 눌러 AI 이미지 생성 창에 붙여 넣음. 만든 그림은 아래 «그림 올리기»로 넣음</p>
+<pre id="promptText">A comprehensive scientific textbook infographic illustration on a clean white background, featuring a 3D ribbon-style enzyme protein structure in the center with orange and red alpha helices and beta sheets, yellow disulfide bond nodes, and a cyan translucent active site pocket containing a bound substrate molecule.
+The layout must include:
+1. A top-left text box placeholder panel with a red header bar.
+2. A top-right circular inset box showing a zoomed-in detailed view of the active site cavity, featuring colored amino acid residues and dashed interaction lines.
+3. A middle-right chemical reaction equation section.
+4. A bottom-right legend box showing small icons for alpha helix, beta sheet, loop, disulfide bond, catalytic triad, and substrate.
+5. Thin indicator lines and callout pointer lines connecting the main 3D structure to the text boxes and inset view.
+Professional scientific illustration style, high resolution, sharp focus.</pre>
+  </section>
 
   <main class="sheet" id="sheet">
     <div class="head">
@@ -225,6 +249,26 @@ var CONFIG = {
   task: '인공효소 자기소개서',               // 드라이브 과제 폴더·제출 목록 탭 이름
   endpoint: 'https://script.google.com/macros/s/AKfycbxw09NpOy0rdd_NnpgVdZpz83k66wx5mkce_DLeqHwIBkRX2VrGeQR6W9taSictPHdr/exec'
 };
+
+// ---- prompt copy: clipboard API first, then select-and-copy for older school browsers ----
+(function(){
+  var btn = document.getElementById('promptCopy'), pre = document.getElementById('promptText');
+  function done(ok){
+    btn.textContent = ok ? '복사됨 ✓' : '글을 직접 드래그해 복사할 것';
+    setTimeout(function(){ btn.textContent = '프롬프트 복사'; }, 2000);
+  }
+  function fallback(){
+    var r = document.createRange(); r.selectNodeContents(pre);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    done(ok);
+  }
+  btn.addEventListener('click', function(){
+    var text = pre.textContent;
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function(){ done(true); }, fallback);
+    else fallback();
+  });
+})();
 
 (function(){
   var KEY = 'enzyme-infographic-v1';
