@@ -93,6 +93,8 @@ textarea:focus,input:focus{outline:2px solid #9cc7e8;outline-offset:3px;border-r
 .btn.danger{color:var(--coral)}
 .btn:disabled{opacity:.6;cursor:default}
 .msg{color:var(--hint);font-size:14px;min-height:1.4em}
+.due{font-size:14px;font-weight:700;color:var(--navy)}
+.due.err{color:var(--coral)}
 .saved{color:var(--hint);font-size:13px}
 
 /* ---- AI image prompt box (above the sheet, not part of the PDF) ---- */
@@ -236,6 +238,7 @@ Professional scientific illustration style, high resolution, sharp focus.</pre>
       <button class="btn primary" id="submitBtn" type="button">제출하기</button>
       <button class="btn" id="pdfBtn" type="button">PDF로 저장하기</button>
     </div>
+    <p class="due" id="due" hidden></p>
     <p class="msg" id="msg" role="status"></p>
     <div id="resetBox"></div>
   </div>
@@ -401,6 +404,23 @@ var CONFIG = {
     });
   }
 
+  // ---- deadline for the chosen class, set by the teacher in the sheet's «제출 기한» tab (the server enforces it) ----
+  var dueEl = document.getElementById('due');
+  function showDue(){
+    var klass = v('id_class');
+    fetch(CONFIG.endpoint + '?task=' + encodeURIComponent(CONFIG.task) + '&klass=' + encodeURIComponent(klass))
+      .then(function(r){ return r.json(); })
+      .then(function(out){
+        if (klass !== v('id_class')) return;
+        var text = out.closed ? '마감된 과제임' : !out.due ? '' : out.past ? '제출 기한(' + out.due + '까지)이 지남' : '제출 기한: ' + out.due + '까지';
+        dueEl.textContent = text; dueEl.hidden = !text;
+        dueEl.className = 'due' + (out.closed || out.past ? ' err' : '');
+      })
+      .catch(function(){ dueEl.hidden = true; });
+  }
+  document.querySelector('[data-k="id_class"]').addEventListener('change', showDue);
+  showDue();
+
   // ---- submit: the same PDF goes to the teacher's Drive through the submission server ----
   var emptyWarned = false;
   document.getElementById('submitBtn').addEventListener('click', async function(){
@@ -416,6 +436,7 @@ var CONFIG = {
       // no custom headers: a plain-text POST skips the CORS preflight Apps Script cannot answer
       var res = await fetch(CONFIG.endpoint, { method: 'POST', body: JSON.stringify({ task: CONFIG.task, klass: v('id_class'), num: v('id_num'), name: v('id_name'), pdf: pdf }) });
       var out = await res.json();
+      if (!out.ok) showDue();
       if (out.ok) say('제출 완료(' + out.time + (out.count > 1 ? ', ' + out.count + '번째 제출' : '') + '). 고쳐서 다시 내면 마지막 것만 남음', 'ok');
       else say(out.msg || '제출하지 못함', 'err');
     } catch (e) {
